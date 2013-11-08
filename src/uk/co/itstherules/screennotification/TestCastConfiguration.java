@@ -44,4 +44,7 @@ public class TestCastConfiguration {
         return Integer.parseInt(properties.getProperty("notification_height", "300"));
     }
 
+    public String serverHost() {
+        return properties.getProperty("server_host", "localhost");
+    }
 }

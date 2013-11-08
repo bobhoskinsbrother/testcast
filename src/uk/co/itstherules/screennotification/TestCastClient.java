@@ -20,7 +20,7 @@ public final class TestCastClient {
     public long sendMessage(String message, Location location) {
         long reply = -1;
         try {
-            URL url = new URL("http://localhost:9998/notify/" + location.name() + "/" + URLEncoder.encode(message, "UTF8"));
+            URL url = new URL("http://"+configuration.serverHost()+":9998/notify/" + location.name() + "/" + URLEncoder.encode(message, "UTF8"));
             URLConnection connection = url.openConnection();
             String header = connection.getHeaderField("X-TESTCAST-NOTIFIER-DISPLAY-TIME");
             reply = Long.parseLong(header);
