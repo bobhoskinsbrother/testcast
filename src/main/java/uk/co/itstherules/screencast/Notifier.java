@@ -1,14 +1,14 @@
 package uk.co.itstherules.screencast;
 
-import uk.co.itstherules.screencast.client.PopUpClient;
-import uk.co.itstherules.screencast.server.PopUpConfiguration;
+import uk.co.itstherules.screencast.client.NotifierClient;
+import uk.co.itstherules.screencast.server.NotifierConfiguration;
 
 public final class Notifier {
 
-    private static final PopUpClient CLIENT;
+    private static final NotifierClient CLIENT;
 
     static {
-        CLIENT = new PopUpClient(new PopUpConfiguration());
+        CLIENT = new NotifierClient(new NotifierConfiguration());
     }
 
     private Notifier() {}
@@ -22,4 +22,12 @@ public final class Notifier {
         }
     }
 
+    public static void splashScreen(String imagePath) {
+        try {
+            long waitTimeInMillis = CLIENT.sendImage(imagePath);
+            Thread.sleep(waitTimeInMillis);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

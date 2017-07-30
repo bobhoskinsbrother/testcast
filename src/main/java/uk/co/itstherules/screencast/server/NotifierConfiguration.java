@@ -1,20 +1,21 @@
 package uk.co.itstherules.screencast.server;
 
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
 import static uk.co.itstherules.screencast.server.Location.TOP_RIGHT;
 
-public class PopUpConfiguration {
+public class NotifierConfiguration {
 
     private final Properties properties;
     private String textStyling;
 
-    public PopUpConfiguration()  {
+    public NotifierConfiguration()  {
         properties = new Properties();
         try {
-            properties.load(new FileInputStream("testcast.properties"));
+            InputStream inputStream = NotifierConfiguration.class.getClassLoader().getResourceAsStream("testcast.properties");
+            properties.load(inputStream);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

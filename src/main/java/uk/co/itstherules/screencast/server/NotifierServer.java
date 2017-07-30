@@ -6,16 +6,19 @@ import uk.co.itstherules.TestCastService;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
-public final class PopUpServer implements TestCastService {
+public final class NotifierServer implements TestCastService {
 
     private HttpServer server;
-    private PopUpNotifierHandler notifier;
+    private NotifierHandler notifier;
+    private SplashHandler splash;
 
-    public PopUpServer(PopUpConfiguration configuration) {
+    public NotifierServer(NotifierConfiguration configuration) {
         try {
-            notifier = new PopUpNotifierHandler(configuration);
+            notifier = new NotifierHandler(configuration);
+            splash = new SplashHandler(configuration);
             server = HttpServer.create(new InetSocketAddress(9998), 0);
             server.createContext("/notify", notifier);
+            server.createContext("/splash", splash);
             server.setExecutor(null);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -29,6 +32,7 @@ public final class PopUpServer implements TestCastService {
     public void stop() throws Exception {
         server.stop(0);
         notifier = null;
+        splash = null;
     }
 
 }

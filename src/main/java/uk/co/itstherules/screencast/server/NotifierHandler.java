@@ -6,19 +6,18 @@ import com.sun.net.httpserver.HttpHandler;
 import java.io.IOException;
 import java.io.OutputStream;
 
-class PopUpNotifierHandler implements HttpHandler {
+class NotifierHandler implements HttpHandler {
 
     private final ScreenNotifier notifier;
     private static final String SERVICE_NAME = "notify";
 
-    PopUpNotifierHandler(PopUpConfiguration configuration) {
+    NotifierHandler(NotifierConfiguration configuration) {
         notifier = new ScreenNotifier(configuration);
     }
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
-        String uri = exchange.getRequestURI().toASCIIString();
-        UriModel uriModel = new UriModel(uri);
+        UriModel uriModel = new UriModel(exchange);
         if(SERVICE_NAME.equals(uriModel.getServiceName())) {
             String message = uriModel.getMessage();
             long timeToDisplay = notifier.showMessage(message, uriModel.getLocation());

@@ -1,6 +1,7 @@
 package uk.co.itstherules.examples;
 
 import uk.co.itstherules.screencast.Notifier;
+import uk.co.itstherules.screencast.ScreenCastDriver;
 import uk.co.itstherules.screencast.extensions.ScreenCast;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
@@ -17,12 +18,21 @@ public class ExampleScreenCastTest {
     @Test
     @ScreenCast
     public void canCaptureBrowsingGoogle() throws Exception {
-        System.setProperty("webdriver.chrome.driver", "bin/chromedriver");
 
+        // setup chrome so the screen is on top and thus can be recorded
         WebDriver driver = preCookedWebDriver();
 
+        /*
+         * Optional splashScreen for the beginning of the screencast
+         * This will look on the classpath for the image, and resize the splash
+         * notifier based on the dimensions of the image
+         */
+        Notifier.splashScreen("google_logo.jpg");
+
         driver.get("http://www.google.com");
+
         Notifier.notify("This is where we search for stuff on the internet");
+
         WebElement searchBox = driver.findElement(By.name("q"));
         searchBox.sendKeys("TestCast");
 
@@ -37,11 +47,14 @@ public class ExampleScreenCastTest {
     }
 
     private WebDriver preCookedWebDriver() {
+        System.setProperty("webdriver.chrome.driver", "bin/chromedriver");
         ChromeOptions options = screenCastChromeOptions();
-        WebDriver driver = new ChromeDriver(options);
-        setAsFullSizeForMacWithChrome(driver);
-        focusOnBrowserWindow(driver);
-        return driver;
+        ChromeDriver delegate = new ChromeDriver(options);
+        setAsFullSizeForMacWithChrome(delegate);
+        focusOnBrowserWindow(delegate);
+
+        // Use the ScreenCastDriver this is so typing and clicking looks more human (it's optional)
+        return new ScreenCastDriver(delegate);
     }
 
     private void focusOnBrowserWindow(WebDriver driver) {
@@ -52,14 +65,12 @@ public class ExampleScreenCastTest {
     private void setAsFullSizeForMacWithChrome(WebDriver driver) {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         driver.manage().window().setPosition(new org.openqa.selenium.Point(0, 0));
-        driver.manage().window().setSize(new org.openqa.selenium.Dimension((int)screenSize.getWidth(), (int)screenSize.getHeight()));
+        driver.manage().window().setSize(new org.openqa.selenium.Dimension((int) screenSize.getWidth(), (int) screenSize.getHeight()));
     }
 
     private ChromeOptions screenCastChromeOptions() {
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--test-type");
-//        options.addArguments("--start-maximized");  // can't use this, as the Java notifier doesn't appear above it
-//        options.addArguments("--kiosk");            // can't use this, as the Java notifier doesn't appear above it
         options.addArguments("--js-flags=--expose-gc");
         options.addArguments("--enable-precise-memory-info");
         options.addArguments("--disable-popup-blocking");

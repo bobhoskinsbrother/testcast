@@ -29,7 +29,7 @@ public class IO {
         } else {
             reply = directoryName + "/" + fileName + "(" + version + ").avi";
         }
-        if (fileExists(fileName)) {
+        if (fileExists(reply)) {
             return makeFileName(fileName, version + 1);
         }
         return reply;

@@ -2,12 +2,11 @@ package uk.co.itstherules.screencast.server;
 
 import com.sun.awt.AWTUtilities;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.util.HashMap;
-import java.util.Map;
-
-import static uk.co.itstherules.screencast.server.Location.*;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 
 public class ScreenNotifier {
 
@@ -15,46 +14,83 @@ public class ScreenNotifier {
     private final int paddingAroundNotification;
     private final JLabel label;
     private final JWindow window;
-    private final Map<Location, Point> locations;
-    private final Dimension notifierDimension;
     private final String textStyling;
+    private final Dimension screenDimension;
+    private final NotifierConfiguration configuration;
+    private final JPanel panel;
 
-    public ScreenNotifier(PopUpConfiguration configuration) {
+    public ScreenNotifier(NotifierConfiguration configuration) {
+        this.configuration = configuration;
         readSpeedPerWord = configuration.readSpeedPerWord();
         textStyling = configuration.textStyling();
         paddingAroundNotification = configuration.paddingAroundNotification();
-        Dimension screenDimension = Toolkit.getDefaultToolkit().getScreenSize();
-        notifierDimension = new Dimension(configuration.notificationWidth(), configuration.notificationHeight());
+        screenDimension = Toolkit.getDefaultToolkit().getScreenSize();
         window = new JWindow();
         window.setAlwaysOnTop(true);
 
-        AWTUtilities.setWindowOpacity(window, 0.9f);
 
+        Dimension notifierDimension = new Dimension(configuration.notificationWidth(), configuration.notificationHeight());
+
+        AWTUtilities.setWindowOpacity(window, 0.9f);
         Container container = window.getContentPane();
         container.setLayout(null);
-
-        JPanel panel = makePanel(notifierDimension);
+        panel = makePanel(notifierDimension);
         container.add(panel);
-
         label = makeLabel(notifierDimension);
         panel.add(label);
-
-        locations = makeLocations(screenDimension, notifierDimension);
-
-        window.setSize(notifierDimension);
-        window.setPreferredSize(notifierDimension);
-        setLocationAt(configuration.location());
+        setDimensionAndLocation(configuration.location(), notifierDimension);
         window.pack();
     }
 
-    private Map<Location, Point> makeLocations(Dimension screenDimension, Dimension notifierDimension) {
-        Map<Location, Point> map = new HashMap<>(Location.values().length);
-        map.put(TOP_RIGHT, topRightOfTheScreen(screenDimension, notifierDimension));
-        map.put(TOP_LEFT, topLeftOfTheScreen());
-        map.put(BOTTOM_RIGHT, bottomRightOfTheScreen(screenDimension, notifierDimension));
-        map.put(BOTTOM_LEFT, bottomLeftOfTheScreen(screenDimension, notifierDimension));
-        map.put(CENTER, centerOfTheScreen(screenDimension, notifierDimension));
-        return map;
+
+    public long showMessage(String text, Location location) {
+        Dimension dimension = new Dimension(configuration.notificationWidth(), configuration.notificationHeight());
+        setDimensionAndLocation(location, dimension);
+        show();
+        final long timeout = timeoutFor(text);
+        label.setText(htmlDecorated(text));
+        makeWorker(timeout).execute();
+        return timeout;
+    }
+
+    public long showImage(byte[] decodedImage, Location location) {
+        try {
+            Image image = ImageIO.read(new ByteArrayInputStream(decodedImage));
+            int height = image.getHeight(null);
+            int width = image.getWidth(null);
+            Dimension dimension = new Dimension(width, height);
+            setDimensionAndLocation(location, dimension);
+            show();
+            final long timeout = 5000L;
+            label.setText("");
+            label.setIcon(new ImageIcon(image));
+            makeWorker(timeout).execute();
+            return timeout;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void setDimensionAndLocation(Location location, Dimension dimension) {
+        setNotifierDimension(dimension);
+        setLocationAt(location, dimension);
+    }
+
+    private void setNotifierDimension(Dimension dimension) {
+        setComponentSize(window, dimension);
+        setComponentSize(panel, dimension);
+        setComponentSize(label, dimension);
+    }
+
+    private Point findLocation(Location location, Dimension notifierDimension) {
+        switch (location) {
+            case TOP_RIGHT: return topRightOfTheScreen(screenDimension, notifierDimension);
+            case CENTER: return centerOfTheScreen(screenDimension, notifierDimension);
+            case TOP_LEFT: return topLeftOfTheScreen();
+            case BOTTOM_RIGHT: return bottomRightOfTheScreen(screenDimension, notifierDimension);
+            case BOTTOM_LEFT: return bottomLeftOfTheScreen(screenDimension, notifierDimension);
+            default: return topRightOfTheScreen(screenDimension, notifierDimension);
+        }
     }
 
     private Point topLeftOfTheScreen() {
@@ -85,27 +121,19 @@ public class ScreenNotifier {
         return new Point(x, y);
     }
 
-    public long showMessage(String text, Location location) {
-        setLocationAt(location);
-        show();
-        final long timeout = timeoutFor(text);
-        label.setText(htmlDecorated(text));
-
-        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-            @Override
-            protected Void doInBackground() throws Exception {
-                try {
-                    Thread.sleep(timeout);
-                } catch (InterruptedException e) {
-                    hide();
-                }
-                hide();
-                return null;
-            }
-        };
-
-        worker.execute();
-        return timeout;
+    private SwingWorker<Void, Void> makeWorker(long timeout) {
+        return new SwingWorker<Void, Void>() {
+                    @Override
+                    protected Void doInBackground() throws Exception {
+                        try {
+                            Thread.sleep(timeout);
+                        } catch (InterruptedException e) {
+                            hide();
+                        }
+                        hide();
+                        return null;
+                    }
+                };
     }
 
     private String htmlDecorated(String text) {
@@ -116,9 +144,9 @@ public class ScreenNotifier {
                 "</html>";
     }
 
-    private void setLocationAt(Location location) {
+    private void setLocationAt(Location location, Dimension dimension) {
         window.setLocationRelativeTo(null);
-        window.setLocation(locations.get(location));
+        window.setLocation(findLocation(location, dimension));
     }
 
     private long timeoutFor(String text) {
@@ -136,10 +164,8 @@ public class ScreenNotifier {
 
     private JLabel makeLabel(Dimension dimension) {
         JLabel label = new JLabel();
-        label.setBounds(0, 0, dimension.width, dimension.height);
         label.setHorizontalAlignment(JLabel.CENTER);
         label.setVerticalAlignment(JLabel.CENTER);
-        label.setMaximumSize(notifierDimension);
         Font verdana = new Font("Trebuchet MS", Font.BOLD, 14);
         label.setFont(verdana);
         label.setForeground(Color.BLACK);
@@ -148,13 +174,18 @@ public class ScreenNotifier {
 
     private JPanel makePanel(Dimension dimension) {
         JPanel panel = new JPanel();
-        panel.setSize(dimension);
-        panel.setPreferredSize(dimension);
         panel.setBackground(Color.WHITE);
-        panel.setBounds(0, 0, dimension.width, dimension.height);
         panel.setForeground(Color.BLACK);
         panel.setLayout(null);
         return panel;
     }
+
+    private void setComponentSize(Component component, Dimension dimension) {
+        component.setSize(dimension);
+        component.setPreferredSize(dimension);
+        component.setBounds(0, 0, dimension.width, dimension.height);
+        component.setMaximumSize(dimension);
+    }
+
 
 }

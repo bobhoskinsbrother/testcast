@@ -21,7 +21,7 @@ public class IOTest {
         IO unit = new IO("./reports") {
             @Override
             boolean fileExists(String fileName) {
-                if(count[0]==0) {
+                if (count[0] == 0) {
                     count[0]++;
                     return true;
                 }
@@ -38,7 +38,7 @@ public class IOTest {
         IO unit = new IO("./reports") {
             @Override
             boolean fileExists(String fileName) {
-                if(count[0]==0 || count[0]==1) {
+                if (count[0] == 0 || count[0] == 1) {
                     count[0]++;
                     return true;
                 }

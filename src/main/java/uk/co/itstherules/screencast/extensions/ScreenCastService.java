@@ -2,8 +2,8 @@ package uk.co.itstherules.screencast.extensions;
 
 import ch.randelshofer.screenrecorder.ScreenRecorder;
 import uk.co.itstherules.TestCastService;
-import uk.co.itstherules.screencast.server.PopUpConfiguration;
-import uk.co.itstherules.screencast.server.PopUpServer;
+import uk.co.itstherules.screencast.server.NotifierConfiguration;
+import uk.co.itstherules.screencast.server.NotifierServer;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,14 +15,14 @@ public class ScreenCastService implements TestCastService {
     private final ExecutorService recorderExecutor;
     private final ScreenRecorder recorder;
     private final ExecutorService popupServerExecutor;
-    private final PopUpServer popUpService;
+    private final NotifierServer popUpService;
 
     public ScreenCastService(String fileName) {
 
         recorder = new ScreenRecorder(new File(fileName));
         recorderExecutor = Executors.newSingleThreadExecutor();
 
-        popUpService = new PopUpServer(new PopUpConfiguration());
+        popUpService = new NotifierServer(new NotifierConfiguration());
         popupServerExecutor = Executors.newSingleThreadExecutor();
 
     }
