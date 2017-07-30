@@ -4,6 +4,7 @@ import de.affinitas.screencast.Notifier;
 import de.affinitas.screencast.extensions.ScreenCast;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -39,7 +40,13 @@ public class ExampleScreenCastTest {
         ChromeOptions options = screenCastChromeOptions();
         WebDriver driver = new ChromeDriver(options);
         setAsFullSizeForMacWithChrome(driver);
+        focusOnBrowserWindow(driver);
         return driver;
+    }
+
+    private void focusOnBrowserWindow(WebDriver driver) {
+        JavascriptExecutor.class.cast(driver).executeScript("alert(\"Start Recording Window\")");
+        driver.switchTo().alert().accept();
     }
 
     private void setAsFullSizeForMacWithChrome(WebDriver driver) {
