@@ -5,7 +5,7 @@ import ch.randelshofer.media.avi.AVIWriter;
 import ch.randelshofer.media.color.Colors;
 import ch.randelshofer.media.image.Images;
 import ch.randelshofer.media.quicktime.QuickTimeWriter;
-import de.affinitas.TestCastService;
+import uk.co.itstherules.TestCastService;
 
 import javax.sound.sampled.*;
 import java.awt.*;
