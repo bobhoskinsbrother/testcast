@@ -31,7 +31,7 @@ public class TestCastExtension extends BaseExtension<TestCast> {
 
     @Override
     public TestCastService makeService(String fileName) {
-        fileName = new IO(getDirectoryName()).makeFileName(fileName);
+        fileName = new IO(getDirectoryName()).makeMovieName(fileName);
         return new ScreenRecorder(new File(fileName));
     }
 

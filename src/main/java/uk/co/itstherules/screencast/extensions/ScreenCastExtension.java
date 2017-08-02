@@ -28,7 +28,7 @@ public class ScreenCastExtension extends BaseExtension<ScreenCast> {
 
     @Override
     public TestCastService makeService(String fileName) {
-        fileName = new IO(getDirectoryName()).makeFileName(fileName);
+        fileName = new IO(getDirectoryName()).makeMovieName(fileName);
         return new ScreenCastService(fileName);
     }
     @Override

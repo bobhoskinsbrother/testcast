@@ -11,8 +11,12 @@ public class IO {
         this.directoryName = directoryName;
     }
 
-    public String makeFileName(String fileName) {
-        return makeFileName(fileName, 0);
+    public String makeImageName(String fileName) {
+        return makeImageName(fileName, 0);
+    }
+
+    public String makeMovieName(String fileName) {
+        return makeMovieName(fileName, 0);
     }
 
     public void makeDirectoryIfNotExists() {
@@ -22,15 +26,24 @@ public class IO {
         }
     }
 
-    private String makeFileName(final String fileName, int version) {
+    private String makeImageName(final String fileName, int version) {
+        return makeNameWithExtension(fileName, ".jpg", version);
+    }
+
+    private String makeMovieName(final String fileName, int version) {
+        return makeNameWithExtension(fileName, ".avi", version);
+
+    }
+
+    private String makeNameWithExtension(final String fileName, final String extension, int version) {
         String reply = "";
         if (version == 0) {
-            reply = directoryName + "/" + fileName + ".avi";
+            reply = directoryName + "/" + fileName + extension;
         } else {
-            reply = directoryName + "/" + fileName + "(" + version + ").avi";
+            reply = directoryName + "/" + fileName + "(" + version + ")" + extension;
         }
         if (fileExists(reply)) {
-            return makeFileName(fileName, version + 1);
+            return makeNameWithExtension(fileName, extension, version + 1);
         }
         return reply;
     }

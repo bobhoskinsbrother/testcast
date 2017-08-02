@@ -1,11 +1,12 @@
 package uk.co.itstherules.screencast;
 
 import org.openqa.selenium.*;
+import org.openqa.selenium.remote.RemoteWebElement;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ScreenCastWebElement implements WebElement {
+public class ScreenCastWebElement extends RemoteWebElement {
 
     private final WebElement delegate;
 
@@ -49,6 +50,16 @@ public class ScreenCastWebElement implements WebElement {
     }
 
     @Override
+    public WebElement findElement(By by) {
+        return new ScreenCastWebElement(delegate.findElement(by));
+    }
+
+    @Override
+    public List<WebElement> findElements(By by) {
+        return  delegate.findElements(by).stream().map(ScreenCastWebElement::new).collect(Collectors.toList());
+    }
+
+    @Override
     public void clear() {
         delegate.clear();
     }
@@ -76,16 +87,6 @@ public class ScreenCastWebElement implements WebElement {
     @Override
     public String getText() {
         return delegate.getText();
-    }
-
-    @Override
-    public List<WebElement> findElements(By by) {
-        return  delegate.findElements(by).stream().map(ScreenCastWebElement::new).collect(Collectors.toList());
-    }
-
-    @Override
-    public WebElement findElement(By by) {
-        return new ScreenCastWebElement(delegate.findElement(by));
     }
 
     @Override

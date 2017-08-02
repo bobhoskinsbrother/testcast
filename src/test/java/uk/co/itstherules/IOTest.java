@@ -1,7 +1,6 @@
 package uk.co.itstherules;
 
 import org.junit.jupiter.api.Test;
-import uk.co.itstherules.IO;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -9,10 +8,18 @@ public class IOTest {
 
 
     @Test
-    public void canMakeProperFilename() {
+    public void canMakeProperMovieName() {
         IO unit = new IO("./reports");
-        String reply = unit.makeFileName("fred");
+        String reply = unit.makeMovieName("fred");
         assertEquals(reply, "./reports/fred.avi");
+    }
+
+
+    @Test
+    public void canMakeProperImageName() {
+        IO unit = new IO("./reports");
+        String reply = unit.makeImageName("fred");
+        assertEquals(reply, "./reports/fred.jpg");
     }
 
     @Test
@@ -28,7 +35,7 @@ public class IOTest {
                 return false;
             }
         };
-        String reply = unit.makeFileName("fred");
+        String reply = unit.makeMovieName("fred");
         assertEquals(reply, "./reports/fred(1).avi");
     }
 
@@ -45,7 +52,7 @@ public class IOTest {
                 return false;
             }
         };
-        String reply = unit.makeFileName("fred");
+        String reply = unit.makeMovieName("fred");
         assertEquals(reply, "./reports/fred(2).avi");
     }
 

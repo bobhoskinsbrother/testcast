@@ -1,11 +1,11 @@
-package uk.co.itstherules.screencast;
+package uk.co.itstherules;
 
 import uk.co.itstherules.screencast.client.NotifierClient;
 import uk.co.itstherules.screencast.server.Location;
 import uk.co.itstherules.screencast.server.NotifierConfiguration;
 import uk.co.itstherules.screencast.server.NotifierServer;
 
-public class RecordScreen {
+public class CanUseClientWithoutAnnotations {
 
     public static void main(String... args) throws Exception {
         NotifierConfiguration configuration = new NotifierConfiguration();
